@@ -1,4 +1,4 @@
-const existFile = ["/chat.html", "/404.html", "/main.js", "/server.js", "favicon.ico"];// First is main page,else are file exist on the server.
+const existFile = ["/chat.html", "/404.html", "/main.js", "/server.js", "/favicon.ico", "/mainsolve.js","/static/vue.min.js"];// First is main page,else are file exist on the server.
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -7,6 +7,7 @@ const url = require("url");
 // const bodyPraser = require("body-parser");
 // let app = express();
 http.createServer(function (request, response) {
+    console.log(request.url);
     let requestLink = url.parse(request.url).path;
     if (requestLink.localeCompare("/") === 0) {// main page logic
         requestLink = existFile[0];
