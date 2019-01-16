@@ -1,0 +1,8 @@
+.idea/
+node_modules/
+static/
+/.eslintrc.json
+/exper.html
+/importoff.exe
+/mainsolve.js
+/package.json

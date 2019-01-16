@@ -8,7 +8,7 @@ let newWebSocket = null;
 
 // const request = new XMLHttpRequest();
 function addMessageToDocument(messageSender, messageContent) {
-    thisVue.$data.sites.push({text: username.value + ':' + mes.value});
+    thisVue.$data.sites.push({text: messageSender + ':' + messageContent});
 }
 
 //服务器与客户端的模拟握手的原理：客户端首先向服务器发起连接请求，连接打开后，客户端立即响应发送用户名,服务器处理用户名，连接正式建立。
@@ -19,7 +19,7 @@ loginButton.onclick = function() {
     newWebSocket.onopen = function(ev) {//连接打开且有效，客户端准备发送用户名
         newWebSocket.send(encodeURI(username.value));//客户端发送用户名
         newWebSocket.onmessage = function(messageEvent2) {//信息监听
-            let s = JSON.parse(messageEvent2.data);//信息内容（JSON串）
+            let s = JSON.parse(decodeURI(messageEvent2.data));//信息内容（JSON串）
             addMessageToDocument(s.poster, s.messageContent);//将信息打印在屏幕上
         };
     };
