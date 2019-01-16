@@ -17,9 +17,7 @@ function addMessageToDocument(messageSender, messageContent) {
 loginButton.onclick = function() {
     newWebSocket = new WebSocket('ws://localhost:8081');//发起连接请求
     newWebSocket.onopen = function(ev) {//连接打开且有效，客户端准备发送用户名
-        for(let i =0;i<=100;i++){
-            newWebSocket.send(encodeURI(username.value));//客户端发送用户名
-        }
+        newWebSocket.send(encodeURI(username.value));//客户端发送用户名
         newWebSocket.onmessage = function(messageEvent2) {//信息监听
             let s = JSON.parse(messageEvent2.data);//信息内容（JSON串）
             addMessageToDocument(s.poster, s.messageContent);//将信息打印在屏幕上

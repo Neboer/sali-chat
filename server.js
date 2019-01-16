@@ -67,7 +67,7 @@ console.log('http://localhost:8080/');
 //         this.totalClient++;
 //     }
 // };
-let client = {};
+let clientList = {};//username:socket
 // function messagePiece(poster,messageContent,postDate){
 //     this.poster=poster;
 //     this.messageContent = messageContent;
@@ -86,21 +86,43 @@ webSocketServer = new ws({
     server: httpServer,
     port: 8081
 });
-webSocketServer.on('connection', function(webSocket) {//服务器建立监听，等待客户端连接
-    console.log("connect");
-    webSocketServer.on('message', function(encodeUsername) {//一旦连接建立，服务器就等待客户端发送用户名
-        let username = decodeURI(encodeUsername);
-        console.log(username);
-        if(client[username]==null) {client[username] = webSocket}//服务器收到用户名，将其和socket一起加入等待列表
-        //服务器尝试从数据库中获取陈年老消息传递给连接上的用户
-        webSocketServer.on("message",function(newMessage) {//服务器修改监听状态，收到新消息立即广播给所有socket
-            console.log(newMessage);
-            //服务器尝试记录这条数据
-            for(let username in client){
-                if(client.hasOwnProperty(username)) client[username].send(newMessage);//服务器广播json串数据。
+webSocketServer.on('connection', function(clientWebSocket) {//服务器建立监听，等待客户端连接
+    clientWebSocket.on('close',function(code,reason) {
+        for(let user in clientList){
+            if(clientList[user]===clientWebSocket){
+                delete clientList[user];
+                // console.log("someone disconnect")
             }
-        })
+        }
     });
+    clientWebSocket.on('message', function(encodeUsername) {//客户端发送用户名
+        let username = decodeURI(encodeUsername.toString());
+        clientList[username] = clientWebSocket; //绑定用户名和socket
+        //向客户发送陈年老消息
+        clientWebSocket.on('message', function(encodeMessage) {
+            let messageContent = JSON.parse(encodeMessage.toString());
+            //向数据库记录这条消息
+            // webSocketServer.clients.forEach(function(userSocket) {
+            //     userSocket.send(encodeMessage);//广播该条消息
+            // });
+            for(let key in clientList){
+                if(clientList.hasOwnProperty(key)) clientList[key].send(encodeMessage);
+            }
+        });
+    });
+    // webSocketServer.on('message', function(encodeUsername) {//一旦连接建立，服务器就等待客户端发送用户名
+    //     let username = decodeURI(encodeUsername);
+    //     console.log(username);
+    //     if(client[username]==null) {client[username] = webSocket}//服务器收到用户名，将其和socket一起加入等待列表
+    //     //服务器尝试从数据库中获取陈年老消息传递给连接上的用户
+    //     webSocketServer.on("message",function(newMessage) {//服务器修改监听状态，收到新消息立即广播给所有socket
+    //         console.log(newMessage);
+    //         //服务器尝试记录这条数据
+    //         for(let username in client){
+    //             if(client.hasOwnProperty(username)) client[username].send(newMessage);//服务器广播json串数据。
+    //         }
+    //     })
+    // });
 });
 // webSocketServer.on('message', function(messageSend) {//messageSend is a JSON
 //     // write message in database

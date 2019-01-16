@@ -10,7 +10,11 @@
     "react-scripts": "2.1.3",
     "express": "latest",
     "body-parser": "latest",
-    "vue": "latest"
+    "vue": "latest",
+    "ws": "latest",
+    "websocket": "latest",
+    "socket.io": "latest",
+    "mysql": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -31,7 +35,11 @@
     "vue"
   ],
   "devDependencies": {
+    "babel-eslint": "^10.0.1",
     "babel-preset-env": "^1.7.0",
-    "babel-preset-es2015": "^6.24.1"
+    "babel-preset-es2015": "^6.24.1",
+    "eslint": "^5.12.0",
+    "eslint-plugin-auto-import": "^0.1.0",
+    "eslint-plugin-react": "^7.12.3"
   }
 }
