@@ -2,13 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Sali-chatroom!</title>
     <script src="static/vue.min.js"></script>
 </head>
 <body>
 <p id="sd">Sali-chat</p>
-<p id="mess">{{ mess }}</p>
-<input type="text" id="username" placeholder="请输入用户名"> <br>
+<div id="app">
+    <dl>
+        <todo-item v-for="item in sites" v-bind:todo="item"></todo-item>
+    </dl>
+</div>
+<input type="text" id="username" placeholder="请输入用户名">
+<button id="login">login</button><br>
 <input type="text" id="message" placeholder="输入消息" style="width : 100px;height: 30px">
 <button id="submit">submit</button>
 <script src="mainsolve.js"></script>
