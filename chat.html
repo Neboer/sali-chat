@@ -6,12 +6,12 @@
     <script src="static/vue.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="webchat.css">
 	<link href="https://fonts.gdgdocs.org/css?family=Lobster" rel="stylesheet" type="text/css">
-	
+
 </head>
 <body background=" timg2.jpg">
 <h1 id="sd">Sali-chat</h1>
-<br>
-<br>
+    <p>在线用户列表：</p>
+    <userList v-for="clients in clientList" v-bind:user="clients"></userList>
 <div id="app" class="chat" >
     <dl>
         <todo-item v-for="item in sites" v-bind:todo="item"></todo-item>
