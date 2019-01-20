@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Sali-chatroom!</title>
-    <script src="static/vue.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="webchat.css">
-	<link href="https://fonts.gdgdocs.org/css?family=Lobster" rel="stylesheet" type="text/css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!--<script src="static/vue.min.js"></script>-->
+    <link rel="stylesheet" type="text/css" href="webchat.css">
+    <link href="https://fonts.gdgdocs.org/css?family=Lobster" rel="stylesheet" type="text/css">
 
 </head>
 <body background=" timg2.jpg">
 <h1 id="sd">Sali-chat</h1>
+<div id="onlinePeople" class="onlinePeople">
     <p>在线用户列表：</p>
-    <userList v-for="clients in clientList" v-bind:user="clients"></userList>
-<div id="app" class="chat" >
+    <userlist v-for="clients in clientList" v-bind:user="clients"></userlist>
+</div>
+<div id="app" class="chat">
     <dl>
         <todo-item v-for="item in sites" v-bind:todo="item"></todo-item>
     </dl>
 </div>
 <div class="post">
-<input type="text" id="username" placeholder="请输入用户名" style="width :40% ;height: 50%">
-<button id="login" style="height: 50%">login</button>
+    <input type="text" id="username" placeholder="请输入用户名" style="width :40% ;height: 50%">
+    <button id="login" style="height: 50%">login</button>
 
-<input type="text" id="message" placeholder="输入消息" style="width :70% ;height: 50%">
-<button id="submit" style="height: 50%">submit</button>
-<script src="mainsolve.js"></script>
+    <input type="text" id="message" placeholder="输入消息" style="width :70% ;height: 50%">
+    <button id="submit" style="height: 50%">submit</button>
+    <script src="mainsolve.js"></script>
 </div>
 </body>
 </html>

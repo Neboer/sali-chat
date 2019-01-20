@@ -5,19 +5,19 @@ const username = document.getElementById('username');
 const mes = document.getElementById('message');
 const loginButton = document.getElementById('login');
 let newWebSocket = null;
-const supportCommandList = ["addMessageToDocument","addUser","deleteUser"];
+const supportCommandList = ['addMessageToDocument', 'addUser', 'deleteUser'];
 
 // const request = new XMLHttpRequest();
-function addMessageToDocument(sendTime, messageSender, messageContent) {
+function addMessage(sendTime, messageSender, messageContent) {
     thisVue.$data.sites.push({text: sendTime + ' ' + messageSender + ':' + messageContent});
+}
+
+function addMessageToDocument(message) {
+    thisVue.$data.sites.push({text: message});
 }
 
 function addUser(inUsername, inLastLogin) {
     userVue.$data.clientList.push({'username': inUsername, 'lastLogin': inLastLogin});
-}
-
-function updateUserList(userList) {//userList是列表，其中包含形如{}的键值对
-    userVue.$data.clientList = userList
 }
 
 function deleteUser(inUsername) {
@@ -25,6 +25,21 @@ function deleteUser(inUsername) {
         if (userVue.$data.clientList[i].username === inUsername) userVue.$data.clientList.splice(i, 1);
     }
 }
+
+function executeCommandList(commandList) {//解析服务端传递的命令字符串，生成函数并执行
+    if (supportCommandList.indexOf(supportCommandList[0]) > -1) {
+        let varList = [];
+        let originList = commandList.split(',');
+        let command = originList[0];
+        for (let i = 1; i <= originList.length - 1; i++) {
+            varList.push('"' + decodeURIComponent(originList[i]) + '"');
+        }
+        let functionString = command + '(' + varList.join(',') + ')';
+        eval(functionString);
+    }
+}
+
+
 
 //服务器与客户端的模拟握手的原理：客户端首先向服务器发起连接请求，连接打开后，客户端立即响应发送用户名,服务器处理用户名，连接正式建立。
 //客户端发送消息，仅仅是发送消息，并不做任何动作。
@@ -36,13 +51,12 @@ loginButton.onclick = function() {
     newWebSocket.onopen = function(ev) {//连接打开且有效，客户端准备发送用户名
         newWebSocket.send(encodeURI(username.value));//客户端发送用户名
         newWebSocket.onmessage = function(messageEvent2) {//信息监听
-            if (messageEvent2.data[0] !== '{') {//首个字符不是{，说明传入了命令。客户端只需要解码命令再执行就可以。
-                let s = decodeURI(messageEvent2.data);/*传入的命令是函数。s经过解码，会得到一个列表，1.18 23:49有问题*/
-                if (s[0] in supportCommandList) {//看看传入的函数在不在支持指令列表中，如果在，就执行函数，向函数传递参数.
-                }
-            } else {//常规消息字符串
+            if (messageEvent2.data[0] !== '{') {
+                executeCommandList(messageEvent2.data);
+            }//首个字符不是{，说明传入了命令。客户端只需要解码命令再执行就可以。
+            else {//常规消息字符串
                 let s = JSON.parse(messageEvent2.data);//信息内容（JSON串）
-                addMessageToDocument(s.time, decodeURI(s.poster), decodeURI(s.messageContent));//将信息打印在屏幕上
+                addMessage(s.time, decodeURI(s.poster), decodeURI(s.messageContent));//将信息打印在屏幕上
             }
         };
     };
@@ -52,32 +66,34 @@ loginButton.onclick = function() {
     submitButton.hidden = Boolean(0);
 };
 
-Vue.component('userList', {
+let userListComponent = {
     props: ['user'],
-    template: '<p>{{ user.username }}</p><p>last login:{{ user.lastLogin }}</p>'
-});
+    template: '<p>{{ user.username }} last login:{{ user.lastLogin }}</p>'
+};
 
 let userVue = new Vue({
     el: '#onlinePeople',
     data: {
         clientList: []
+    },
+    components: {
+        "userlist":userListComponent
     }
 });
-Vue.component('todo-item', {
+let messageList = {
     props: ['todo'],
     template: '<dd>{{ todo.text }}</dd>'
-});
+};
 
 let thisVue = new Vue({
     el: '#app',
     data: {
         sites: []
+    },
+    components: {
+        "todo-item":messageList
     }
 });
-// let clientVue = new Vue({
-//     el: '#onlinePeople'
-//     data:
-// });
 
 let submit = function() {
     let time = new Date();
@@ -89,6 +105,7 @@ let submit = function() {
         time: time.toTimeString().slice(0, 8)
     };
     newWebSocket.send(JSON.stringify(messageWaitForSend));//仅仅是发送信息而已，并不把信息增加到页面上，等待服务端回传信息时添加。
+    console.log(JSON.stringify(messageWaitForSend));
     mes.value = '';
 };
 

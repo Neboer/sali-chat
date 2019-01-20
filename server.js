@@ -1,4 +1,4 @@
-const existFile = ['/chat.html', '/404.html', '/main.js', '/server.js', '/favicon.ico', '/mainsolve.js', '/static/vue.min.js', '/maincss.css'];// First is main page,else are file exist on the server.
+const existFile = ['/chat.html', '/404.html', '/main.js', '/server.js', '/favicon.ico', '/mainsolve.js', '/static/vue.min.js', '/timg.jpg', '/timg.png', '/timg2.jpg', '/webchat.css'];// First is main page,else are file exist on the server.
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -44,9 +44,18 @@ console.log('http://localhost:8080/');
 //
 // });
 let clientList = {};//在服务器端也要维护一个列表，列表格式如下：{username:{socket:,lastLogin:}}
-function broadcast(message){//服务器对所有在“在线列表”中的用户发送消息。
+function broadcast(message) {//服务器对所有在“在线列表”中的用户发送消息。
     for (let key in clientList) {//客户端发送消息，服务器对其进行广播
-        if (clientList.hasOwnProperty(key)) clientList[key][socket].send(message);
+        if (clientList.hasOwnProperty(key)) clientList[key]['socket'].send(message);
+    }
+}
+
+function buildCommand(commandList) {//传入一个列表，函数返回这个列表的命令形式（返回Component编码字符串）。
+    if (commandList[0] === 'addUser') {
+        return 'addUser,' + encodeURIComponent(commandList[1]) + ',' + encodeURIComponent(commandList[2]);
+    }
+    if (commandList[0] === 'deleteUser') {
+        return 'deleteUser,' + encodeURIComponent(commandList[1]);
     }
 }
 
@@ -60,22 +69,27 @@ webSocketServer.on('connection', function(clientWebSocket) {//服务器建立监
         for (let user in clientList) {
             if (clientList[user].socket === clientWebSocket) {
                 delete clientList[user];
-                broadcast(encodeURI("deleteUser("+user+")"))//删除用户，装船打包一波带走
-                // console.log("someone disconnect")
+                broadcast(buildCommand(['deleteUser', user]));
+                break;
             }
         }
     });
     clientWebSocket.on('message', function(encodeMessage) {
-        if (encodeMessage.toString()[0] === '{' && encodeMessage.toString()[encodeMessage.toString().length - 1] === '}') {
+        if (encodeMessage.toString()[0] === '{' && encodeMessage.toString()[encodeMessage.toString().length - 1] === '}') {//客户端发送消息，服务器对其进行广播
             // let messageContent = JSON.parse(encodeMessage.toString());
             //向数据库记录这条消息
             broadcast(encodeMessage);//向所有用户发送这条消息
         } else {//客户端发送用户名
             let username = decodeURI(encodeMessage.toString());
             let dat = new Date();
-            clientList[username] = {"socket":clientWebSocket,"lastLogin":dat.toTimeString().slice(0,8)}; //绑定用户名和socket
-            broadcast("updateUserList")
+            broadcast(buildCommand(['addUser', username, dat.toTimeString().slice(0, 8)]));//在用户加入上线列表之前广播用户上线的消息，然后单独发送在线人数
+            clientList[username] = {'socket': clientWebSocket, 'lastLogin': dat.toTimeString().slice(0, 8)}; //绑定用户名和socket
             //向客户发送陈年老消息
+            for (let poster in clientList) {
+                if (clientList.hasOwnProperty(poster)) {//首次登录发送登录信息
+                    clientWebSocket.send(buildCommand(['addUser', poster, clientList[poster]['lastLogin']]));
+                }
+            }
         }
     });
 });
