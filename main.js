@@ -4,6 +4,7 @@ const submitButton = document.getElementById('submit');
 const username = document.getElementById('username');
 const mes = document.getElementById('message');
 const loginButton = document.getElementById('login');
+const endClick = document.getElementById("msg_end");
 let newWebSocket = null;
 const supportCommandList = ['addMessageToDocument', 'addUser', 'deleteUser'];
 
@@ -57,6 +58,8 @@ loginButton.onclick = function() {
             else {//常规消息字符串
                 let s = JSON.parse(messageEvent2.data);//信息内容（JSON串）
                 addMessage(s.time, decodeURI(s.poster), decodeURI(s.messageContent));//将信息打印在屏幕上
+                endClick.click();
+                mes.focus();
             }
         };
     };
@@ -105,7 +108,6 @@ let submit = function() {
         time: time.toTimeString().slice(0, 8)
     };
     newWebSocket.send(JSON.stringify(messageWaitForSend));//仅仅是发送信息而已，并不把信息增加到页面上，等待服务端回传信息时添加。
-    console.log(JSON.stringify(messageWaitForSend));
     mes.value = '';
 };
 

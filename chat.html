@@ -19,13 +19,14 @@
     <dl>
         <todo-item v-for="item in sites" v-bind:todo="item"></todo-item>
     </dl>
+    <a id="msg_end" name="1" href="#1"> </a>
 </div>
 <div class="post">
     <input type="text" id="username" placeholder="请输入用户名" style="width :40% ;height: 50%">
     <button id="login" style="height: 50%">login</button>
 
-    <input type="text" id="message" placeholder="输入消息" style="width :70% ;height: 50%">
-    <button id="submit" style="height: 50%">submit</button>
+    <input type="text" id="message" placeholder="输入消息" style="width :70% ;height: 50%" hidden>
+    <button id="submit" style="height: 50%" hidden>submit</button>
     <script src="mainsolve.js"></script>
 </div>
 </body>

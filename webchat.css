@@ -32,7 +32,9 @@ body
   -o-background-size: cover;
   background-position: center 0;
   text-align:left;
-
+  overflow:auto;
+  overflow-y:scroll;
+  overflow-x:scroll;
 }
 .onlinePeople
 {
