@@ -1,6 +1,7 @@
 .idea/
 node_modules/
-static/
+static/password
+static/vue.min.js
 /.eslintrc.json
 /exper.html
 /importoff.exe

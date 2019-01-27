@@ -48,16 +48,17 @@ function executeCommandList(commandList) {//解析服务端传递的命令字符
 //如果服务器发来的数据并不是JSON，就说明这是一条指令，指令是一个普通的字符串集，除首个元素，每个字符串都是encodeURIComponent编码的，由不编码的逗号","分隔。
 //第一个元素是函数名，也就是命令名，其余项解码后都是函数传入的参数。
 loginButton.onclick = function() {
-    newWebSocket = new WebSocket('ws://localhost:8081');//发起连接请求
+    newWebSocket = new WebSocket('ws://localhost:8081');//发起连接请求*注意：部署是一定要改成服务器外网地址
     newWebSocket.onopen = function(ev) {//连接打开且有效，客户端准备发送用户名
         newWebSocket.send(encodeURI(username.value));//客户端发送用户名
         newWebSocket.onmessage = function(messageEvent2) {//信息监听
             if (messageEvent2.data[0] !== '{') {
-                executeCommandList(messageEvent2.data);
-            }//首个字符不是{，说明传入了命令。客户端只需要解码命令再执行就可以。
+                executeCommandList(messageEvent2.data);//首个字符不是{，说明传入了命令。客户端只需要解码命令再执行就可以。
+            }
             else {//常规消息字符串
                 let s = JSON.parse(messageEvent2.data);//信息内容（JSON串）
-                addMessage(s.time, decodeURI(s.poster), decodeURI(s.messageContent));//将信息打印在屏幕上
+                let t = new Date(s.time);
+                addMessage(t.toTimeString().slice(0,8), s.poster, s.messageContent);//将信息打印在屏幕上，注意，此时的time已经变成了timeString串，形如‘2019-01-26T04:32:23.673Z’
                 endClick.click();
                 mes.focus();
             }
@@ -100,12 +101,12 @@ let thisVue = new Vue({
 
 let submit = function() {
     let time = new Date();
-    let usernameWaitForSend = encodeURI(username.value);
-    let messageContentWaitForSend = encodeURI(mes.value);
+    let usernameWaitForSend = username.value;
+    let messageContentWaitForSend = mes.value;
     let messageWaitForSend = {
         poster: usernameWaitForSend,
         messageContent: messageContentWaitForSend,
-        time: time.toTimeString().slice(0, 8)
+        time: time.toISOString()
     };
     newWebSocket.send(JSON.stringify(messageWaitForSend));//仅仅是发送信息而已，并不把信息增加到页面上，等待服务端回传信息时添加。
     mes.value = '';
